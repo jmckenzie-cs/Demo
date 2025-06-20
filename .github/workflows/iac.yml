@@ -1,0 +1,38 @@
+# Name of the workflow as it will appear in GitHub Actions UI
+name: CrowdStrike FCS IAC Scan
+
+# Define when this workflow will run
+on:
+  push:
+    branches: [ main ]  # Run when code is pushed to the main branch
+  pull_request:
+    branches: [ main ]  # Run when a PR is created or updated targeting main branch
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly on Sundays at midnight UTC
+
+# Define the jobs that make up this workflow
+jobs:
+  # Job ID - used for referencing this job within the workflow
+  fcs-scan:
+    # Specifies the runner environment for this job
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner provided by GitHub
+    # Specify the environment where your secrets are stored
+    environment: iac
+    
+    # Sequential steps that make up this job
+    steps:
+      # Step 1: Check out the repository code so it's available for scanning
+      - name: Checkout code
+        uses: actions/checkout@v3  # Use GitHub's official checkout action (version 3)
+      
+      # Step 2: Run the CrowdStrike Falcon Container Security scan
+      - name: Run FCS IaC Scan
+        uses: crowdstrike/fcs-action@v1.1.0
+        env:
+          FALCON_CLIENT_SECRET: ${{ secrets.FALCON_CLIENT_SECRET }}
+        with:
+          falcon_client_id: ${{ secrets.FALCON_CLIENT_ID }}
+          falcon_region: 'us-2'
+          path: './'
+          upload_results: 'true'
+          output_path: './scan-results'
