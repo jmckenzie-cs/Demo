@@ -1,6 +1,11 @@
 # Name of the workflow as it will appear in GitHub Actions UI
 name: CrowdStrike FCS IAC Scan
 
+# Limit permissions for the GITHUB_TOKEN
+permissions:
+  contents: read
+  security-events: write
+
 # Define when this workflow will run
 on:
   push:
