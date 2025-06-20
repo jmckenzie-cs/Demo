@@ -35,4 +35,4 @@ jobs:
           falcon_region: 'us-2'
           path: './'
           upload_results: 'true'
-          output_path: './scan-results'
+          output_path: './'
