@@ -24,6 +24,9 @@ jobs:
       # Step 1: Check out the repository code so it's available for scanning
       - name: Checkout code
         uses: actions/checkout@v4  # Use GitHub's official checkout action (version 3)
+
+      - name: Create output directory
+        run: mkdir -p scan-results
       
       # Step 2: Run the CrowdStrike Falcon Container Security scan
       - name: Run FCS IaC Scan
