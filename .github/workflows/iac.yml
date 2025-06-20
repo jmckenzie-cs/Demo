@@ -35,5 +35,5 @@ jobs:
           falcon_region: 'us-2'
           path: './'
           upload_results: 'true'
-          reports_formats: 'json'
+          reports_formats: json
           output_path: './'
