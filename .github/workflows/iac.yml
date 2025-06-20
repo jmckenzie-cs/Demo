@@ -23,7 +23,7 @@ jobs:
     steps:
       # Step 1: Check out the repository code so it's available for scanning
       - name: Checkout code
-        uses: actions/checkout@v4  # Use GitHub's official checkout action (version 3)
+        uses: actions/checkout@v4  # Use GitHub's official checkout action (version 4)
 
       - name: Create output directory
         run: mkdir -p scan-results
@@ -42,8 +42,23 @@ jobs:
           output_path: './scan-results'
           project_owners: 'jason.mckenzie@crowdstrike.com'
 
+      - name: Transform SARIF file
+        if: always()
+        run: |
+          cp ./scan-results/*-scan-results.sarif original.sarif
+          jq '
+            .runs[].tool.driver.informationUri = "https://www.crowdstrike.com" |
+            .runs[].tool.driver.rules[] |= (
+              if .defaultConfiguration.level == "critical" or .defaultConfiguration.level == "high" then .defaultConfiguration.level = "error"
+              elif .defaultConfiguration.level == "medium" then .defaultConfiguration.level = "warning"
+              elif .defaultConfiguration.level == "low" or .defaultConfiguration.level == "informational" then .defaultConfiguration.level = "note"
+              else .defaultConfiguration.level = "warning"
+              end
+            )
+          ' original.sarif > scan-results.sarif
+
       - name: Upload SARIF report to GitHub Code scanning
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: ./scan-results/
+          sarif_file: ./scan-results.sarif
