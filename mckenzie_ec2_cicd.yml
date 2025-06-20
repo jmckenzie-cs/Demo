@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for a basic Linux EC2 instance named mckenzie_cicd'
+
+Parameters:
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+    ConstraintDescription: Must be a valid EC2 instance type.
+
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: Must be the name of an existing EC2 KeyPair.
+
+  SSHLocation:
+    Description: The IP address range that can SSH to the EC2 instance
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x.
+
+Resources:
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access for mckenzie_cicd instance
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+      Tags:
+        - Key: Name
+          Value: mckenzie_cicd-sg
+
+  LinuxInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      SecurityGroups:
+        - !Ref EC2SecurityGroup
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      Tags:
+        - Key: Name
+          Value: mckenzie_cicd
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-0f34c5ae932e6f0e4
+    us-east-2:
+      AMI: ami-02a89066c48e72c76
+    us-west-1:
+      AMI: ami-09e5fc3b8c5b984e9
+    us-west-2:
+      AMI: ami-0efcece6bed30fd98
+    eu-west-1:
+      AMI: ami-0db5ca3e5748fb7e2
+    eu-central-1:
+      AMI: ami-06dd92ecc74fdfb36
+    ap-northeast-1:
+      AMI: ami-0ab0bbbd329f565e6
+    ap-southeast-1:
+      AMI: ami-0dc5785603ad4ff54
+
+Outputs:
+  InstanceId:
+    Description: Instance ID of the mckenzie_cicd EC2 instance
+    Value: !Ref LinuxInstance
+  PublicIP:
+    Description: Public IP address of the mckenzie_cicd EC2 instance
+    Value: !GetAtt LinuxInstance.PublicIp
+  PublicDNS:
+    Description: Public DNS of the mckenzie_cicd EC2 instance
+    Value: !GetAtt LinuxInstance.PublicDnsName
