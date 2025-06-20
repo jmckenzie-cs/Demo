@@ -37,4 +37,4 @@ jobs:
           upload_results: 'true'
           report_formats: 'json'
           output_path: './'
-          project_owners: 'Jason Mckenzie'
+          project_owners: 'jason.mckenzie@crowdstrike.com'
