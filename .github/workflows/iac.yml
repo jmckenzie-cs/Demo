@@ -36,7 +36,7 @@ jobs:
           path: './'
           upload_results: 'true'
           report_formats: 'sarif'
-          output_path: './'
+          output_path: './scan-results'
           project_owners: 'jason.mckenzie@crowdstrike.com'
 
       - name: Upload SARIF report to GitHub Code scanning
