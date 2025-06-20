@@ -35,7 +35,7 @@ jobs:
           falcon_region: 'us-2'
           path: './'
           upload_results: 'true'
-          report_formats: 'json'
+          report_formats: 'sarif'
           output_path: './'
           project_owners: 'jason.mckenzie@crowdstrike.com'
 
