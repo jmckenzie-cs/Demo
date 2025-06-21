@@ -1,10 +1,10 @@
 # Name of the workflow as it will appear in GitHub Actions UI
 name: CrowdStrike FCS IAC Scan
 
-# Limit permissions for the GITHUB_TOKEN
+# Limit permissions for the GITHUB_TOKEN to only what's needed
 permissions:
-  contents: read
-  security-events: write
+  contents: read        # Read repository contents
+  security-events: write # Write to GitHub Security tab
 
 # Define when this workflow will run
 on:
@@ -17,7 +17,7 @@ on:
 
 # Define the jobs that make up this workflow
 jobs:
-  # Job ID - used for referencing this job within the workflow
+  # Job for running CrowdStrike Falcon Container Security IaC scan
   fcs-scan:
     # Specifies the runner environment for this job
     runs-on: ubuntu-latest  # Use the latest Ubuntu runner provided by GitHub
@@ -30,10 +30,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4  # Use GitHub's official checkout action (version 4)
 
+      # Step 2: Create directory for scan results
       - name: Create output directory
         run: mkdir -p scan-results
       
-      # Step 2: Run the CrowdStrike Falcon Container Security scan
+      # Step 3: Run the CrowdStrike Falcon Container Security scan
       - name: Run FCS IaC Scan
         uses: crowdstrike/fcs-action@v1.1.0
         env:
@@ -41,16 +42,21 @@ jobs:
         with:
           falcon_client_id: ${{ secrets.FALCON_CLIENT_ID }}
           falcon_region: 'us-2'
-          path: './'
-          upload_results: 'true'
-          report_formats: 'sarif'
-          output_path: './scan-results'
-          project_owners: 'jason.mckenzie@crowdstrike.com'
+          path: './'                                    # Scan the entire repository
+          upload_results: 'true'                        # Upload results to CrowdStrike console
+          report_formats: 'sarif'                       # Generate SARIF format report
+          output_path: './scan-results'                 # Where to store scan results
+          project_owners: 'jason.mckenzie@crowdstrike.com'  # Contact for scan results
 
+      # Step 4: Transform SARIF file to match GitHub's expected format
       - name: Transform SARIF file
-        if: always()
+        if: always()  # Run even if previous steps fail
         run: |
           cp ./scan-results/*-scan-results.sarif original.sarif
+          # Transform severity levels to match GitHub's expectations:
+          # - critical/high -> error
+          # - medium -> warning
+          # - low/informational -> note
           jq '
             .runs[].tool.driver.informationUri = "https://www.crowdstrike.com" |
             .runs[].tool.driver.rules[] |= (
@@ -62,8 +68,9 @@ jobs:
             )
           ' original.sarif > scan-results.sarif
 
+      # Step 5: Upload the transformed SARIF file to GitHub Code Scanning
       - name: Upload SARIF report to GitHub Code scanning
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always()  # Run even if previous steps fail
         with:
-          sarif_file: scan-results.sarif
+          sarif_file: scan-results.sarif  # Path to the transformed SARIF file
