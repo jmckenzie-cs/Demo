@@ -78,4 +78,4 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         if: always()  # Run even if previous steps fail
         with:
-          sarif_file: scan-results.sarif  # Path to the transformed SARIF file
+          sarif_file: ./scan-results/scan-results.sarif  # Path to the transformed SARIF file
