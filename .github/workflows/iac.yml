@@ -66,16 +66,16 @@ jobs:
               else .defaultConfiguration.level = "warning"
               end
             )
-          ' original.sarif > scan-results.sarif
+          ' original.sarif > results.sarif
 
       - name: Validate SARIF file
         if: always()
         run: |
-          if [ ! -f scan-results.sarif ]; then
+          if [ ! -f results.sarif ]; then
             echo "Error: scan-results.sarif does not exist"
             exit 1
           fi
-          if [ ! -s scan-results.sarif ]; then
+          if [ ! -s results.sarif ]; then
             echo "Error: scan-results.sarif is empty"
             exit 1
           fi
