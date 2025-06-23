@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'EC2 instance with Docker installed - CAUTION: Secure access required'
+
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: Must be the name of an existing EC2 KeyPair
+
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - t3.medium
+    ConstraintDescription: Must be a valid EC2 instance type
+
+  SSHLocation:
+    Description: The IP address range that can SSH to the EC2 instance
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+
+Resources:
+  DockerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH and Docker TLS access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+        - IpProtocol: tcp
+          FromPort: 2376
+          ToPort: 2376
+          CidrIp: !Ref SSHLocation  # Restrict to specific IPs in production
+
+  DockerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      SecurityGroups:
+        - !Ref DockerSecurityGroup
+      KeyName: !Ref KeyName
+      ImageId: ami-0c55b159cbfafe1f0  # Amazon Linux 2 AMI (adjust for your region)
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum update -y
+          amazon-linux-extras install docker -y
+          systemctl enable docker
+          systemctl start docker
+          
+          # Create directory for Docker TLS certificates
+          mkdir -p /etc/docker/certs
+          
+          # Generate CA, server and client certificates (simplified - use proper PKI in production)
+          cd /etc/docker/certs
+          
+          # Configure Docker to use TLS
+          cat > /etc/docker/daemon.json <<EOF
+          {
+            "tls": true,
+            "tlscacert": "/etc/docker/certs/ca.pem",
+            "tlscert": "/etc/docker/certs/server-cert.pem",
+            "tlskey": "/etc/docker/certs/server-key.pem",
+            "hosts": ["tcp://0.0.0.0:2376", "unix:///var/run/docker.sock"]
+          }
+          EOF
+          
+          # Restart Docker to apply changes
+          systemctl restart docker
+          
+          # Add a message to remind users to set up proper TLS
+          echo "IMPORTANT: Generate proper TLS certificates before using Docker remotely" > /etc/motd
+
+Outputs:
+  InstanceId:
+    Description: Instance ID of the Docker host
+    Value: !Ref DockerInstance
+  PublicDNS:
+    Description: Public DNS of the Docker host
+    Value: !GetAtt DockerInstance.PublicDnsName
+  SSHCommand:
+    Description: SSH command to connect to the instance
+    Value: !Sub "ssh -i ${KeyName}.pem ec2-user@${DockerInstance.PublicDnsName}"
+  SecurityWarning:
+    Description: Security warning
+    Value: "IMPORTANT: Generate proper TLS certificates and restrict security group access before using Docker remotely"
