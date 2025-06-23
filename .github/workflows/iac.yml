@@ -67,7 +67,20 @@ jobs:
               end
             )
           ' original.sarif > scan-results.sarif
-          
+
+      - name: Validate SARIF file
+        if: always()
+        run: |
+          if [ ! -f scan-results.sarif ]; then
+            echo "Error: scan-results.sarif does not exist"
+            exit 1
+          fi
+          if [ ! -s scan-results.sarif ]; then
+            echo "Error: scan-results.sarif is empty"
+            exit 1
+          fi
+          echo "SARIF file exists and has content"
+
       - name: Print SARIF file to screen
         if: always()  # Run even if previous steps fail
         run: |
