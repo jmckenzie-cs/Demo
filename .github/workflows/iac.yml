@@ -71,7 +71,7 @@ jobs:
       - name: Print SARIF file to screen
         if: always()  # Run even if previous steps fail
         run: |
-          cat ./scan-results/*-scan-results.sarif
+          cat ./scan-results.sarif
 
       # Step 5: Upload the transformed SARIF file to GitHub Code Scanning
       - name: Upload SARIF report to GitHub Code scanning
