@@ -21,7 +21,7 @@ Resources:
 Outputs:
   BucketName:
     Description: 'Name of the S3 bucket'
-    Value: !Ref MyS3Bucket
+    Value: !Ref MyS3Bucket_v2
   BucketARN:
     Description: 'ARN of the S3 bucket'
     Value: !GetAtt MyS3Bucket.Arn
