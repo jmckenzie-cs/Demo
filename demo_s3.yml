@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template to create a public S3 bucket'
+
+Resources:
+  DemoS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 'demo_s3'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      
+  BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref DemoS3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadAccess
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref DemoS3Bucket
+                - '/*'
+
+Outputs:
+  BucketName:
+    Description: Name of the created S3 bucket
+    Value: !Ref DemoS3Bucket
