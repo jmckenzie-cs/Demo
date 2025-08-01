@@ -26,7 +26,6 @@ jobs:
           CS_CLIENT_SECRET: ${{ secrets.CROWDSTRIKE_CLIENT_SECRET }}
           SHOW_FULL_RESULTS: true
           EXIT_WITH_FCS_CODE: true
-          DEBUG: true  # Add this line
         run: |
           chmod +x fcs_cli_iac_scan.sh
           ./fcs_cli_iac_scan.sh
