@@ -18,7 +18,18 @@ jobs:
           curl --version
           jq --version
           tar --version
-        
+          
+      - name: Debug Secrets (REMOVE AFTER TESTING)
+        run: |
+          echo "API URL length: ${#CS_BASE_API_URL}"
+          echo "Client ID length: ${#CS_CLIENT_ID}"
+          echo "Client Secret length: ${#CS_CLIENT_SECRET}"
+          
+  env:
+    CS_BASE_API_URL: ${{ secrets.CROWDSTRIKE_API_URL }}
+    CS_CLIENT_ID: ${{ secrets.CROWDSTRIKE_CLIENT_ID }}
+    CS_CLIENT_SECRET: ${{ secrets.CROWDSTRIKE_CLIENT_SECRET }}
+  
       - name: Run FCS Scan
         env:
           CS_BASE_API_URL: ${{ secrets.CROWDSTRIKE_API_URL }}
