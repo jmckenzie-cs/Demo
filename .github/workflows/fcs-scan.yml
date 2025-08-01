@@ -61,5 +61,5 @@ jobs:
         with:
           name: security-scan-results
           path: |
-            fcs-scan-results.json  # Detailed JSON results
-            fcs-scan-results.sarif # SARIF format for GitHub integration
+            fcs-scan-results.json
+            fcs-scan-results.sarif
