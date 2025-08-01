@@ -23,9 +23,9 @@ jobs:
       - name: Verify dependencies (optional)
         run: |
           echo "Checking dependencies..."
-          curl --version    # HTTP client for API calls
-          jq --version      # JSON processor for parsing responses
-          tar --version     # Archive utility for extracting files
+          curl --version
+          jq --version
+          tar --version
         
       # Main security scan execution step
       - name: Run FCS Scan
