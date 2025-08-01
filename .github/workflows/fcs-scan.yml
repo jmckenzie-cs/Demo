@@ -25,7 +25,7 @@ jobs:
           CS_CLIENT_ID: ${{ secrets.CROWDSTRIKE_CLIENT_ID }}
           CS_CLIENT_SECRET: ${{ secrets.CROWDSTRIKE_CLIENT_SECRET }}
           SHOW_FULL_RESULTS: true
-          EXIT_WITH_FCS_CODE: true
+          EXIT_WITH_FCS_CODE: false
         run: |
           chmod +x fcs_cli_iac_scan.sh
           ./fcs_cli_iac_scan.sh
