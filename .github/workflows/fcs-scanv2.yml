@@ -22,8 +22,8 @@ jobs:
       - name: Run FCS Scan
         env:
           CS_BASE_API_URL: ${{ secrets.CROWDSTRIKE_API_URL }}
-          CS_CLIENT_ID: ${{ secrets.FALCON_CLIENT_ID }}
-          CS_CLIENT_SECRET: ${{ secrets.FALCON_CLIENT_SECRET }}
+          CS_CLIENT_ID: ${{ secrets.CS_CLIENT_ID }}
+          CS_CLIENT_SECRET: ${{ secrets.CS_CLIENT_SECRET }}
           SHOW_FULL_RESULTS: true
           EXIT_WITH_FCS_CODE: true
         run: |
