@@ -52,14 +52,4 @@ jobs:
           sarif_file: fcs-scan-results.sarif
         # Don't fail the workflow if SARIF upload fails
         continue-on-error: true
-          
-      # Archive scan results as workflow artifacts for download/review
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        # Always run this step, even if scan fails
-        if: always()
-        with:
-          name: security-scan-results
-          path: |
-            fcs-scan-results.json
-            fcs-scan-results.sarif
+
