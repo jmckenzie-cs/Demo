@@ -18,30 +18,31 @@ jobs:
           curl --version
           jq --version
           tar --version
+          
       - name: Verify Environment Variables (Debug)
-  run: |
-    echo "Checking if secrets are properly set..."
-    if [ -n "$CS_BASE_API_URL" ]; then
-      echo "✓ CS_BASE_API_URL is set"
-    else
-      echo "✗ CS_BASE_API_URL is not set"
-    fi
-    
-    if [ -n "$CS_CLIENT_ID" ]; then
-      echo "✓ CS_CLIENT_ID is set"
-    else
-      echo "✗ CS_CLIENT_ID is not set"
-    fi
-    
-    if [ -n "$CS_CLIENT_SECRET" ]; then
-      echo "✓ CS_CLIENT_SECRET is set (length: ${#CS_CLIENT_SECRET})"
-    else
-      echo "✗ CS_CLIENT_SECRET is not set"
-    fi
-  env:
-    CS_BASE_API_URL: ${{ secrets.CROWDSTRIKE_API_URL }}
-    CS_CLIENT_ID: ${{ secrets.CROWDSTRIKE_CLIENT_ID }}
-    CS_CLIENT_SECRET: ${{ secrets.CROWDSTRIKE_CLIENT_SECRET }}
+        run: |
+          echo "Checking if secrets are properly set..."
+          if [ -n "$CS_BASE_API_URL" ]; then
+            echo "✓ CS_BASE_API_URL is set"
+          else
+            echo "✗ CS_BASE_API_URL is not set"
+          fi
+          
+          if [ -n "$CS_CLIENT_ID" ]; then
+            echo "✓ CS_CLIENT_ID is set"
+          else
+            echo "✗ CS_CLIENT_ID is not set"
+          fi
+          
+          if [ -n "$CS_CLIENT_SECRET" ]; then
+            echo "✓ CS_CLIENT_SECRET is set (length: ${#CS_CLIENT_SECRET})"
+          else
+            echo "✗ CS_CLIENT_SECRET is not set"
+          fi
+        env:
+          CS_BASE_API_URL: ${{ secrets.CROWDSTRIKE_API_URL }}
+          CS_CLIENT_ID: ${{ secrets.CROWDSTRIKE_CLIENT_ID }}
+          CS_CLIENT_SECRET: ${{ secrets.CROWDSTRIKE_CLIENT_SECRET }}
 
       - name: Run FCS Scan
         env:
