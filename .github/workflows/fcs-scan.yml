@@ -50,8 +50,8 @@ jobs:
           SHOW_FULL_RESULTS: true
           # Don't fail the workflow on security findings
           EXIT_WITH_FCS_CODE: false
+          # Execute the FCS scan script
         run: |
-          # Make the scan script executable and run it
           chmod +x fcs_cli_iac_scan.sh
           ./fcs_cli_iac_scan.sh
         
