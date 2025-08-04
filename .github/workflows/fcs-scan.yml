@@ -23,7 +23,7 @@ jobs:
       # Step 1: Checkout the repository code
       - uses: actions/checkout@v4
       
-      # Step 2: Verify required system dependencies are available
+      # Step 2: Verify required system dependencies are available on runner
       - name: Verify dependencies (optional)
         run: |
           echo "Checking dependencies..."
