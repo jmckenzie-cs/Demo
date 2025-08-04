@@ -1,48 +1,82 @@
+# Workflow name - describes the purpose of this automation
 name: FCS IaC Security Scan
+
+# Trigger events - when this workflow should run
+# Runs on every push and pull request to any branch
 on: [push, pull_request]
 
+# Define permissions required for this workflow
 permissions:
+  # Read repository contents
   contents: read
+  # Write security findings to GitHub Security tab
   security-events: write
+  # Read workflow run information
   actions: read
 
 jobs:
   security-scan:
+    # Use the latest Ubuntu runner for consistent environment
     runs-on: ubuntu-latest
+    
     steps:
+      # Step 1: Checkout the repository code
       - uses: actions/checkout@v4
       
+      # Step 2: Verify required system dependencies are available
       - name: Verify dependencies (optional)
         run: |
           echo "Checking dependencies..."
+          # HTTP client for API calls
           curl --version
+          # JSON processor for parsing responses
           jq --version
+          # Archive utility for extracting files
           tar --version
         
+      # Step 3: Execute the CrowdStrike Falcon Cloud Security IaC scan
       - name: Run FCS Scan
         env:
+          # CrowdStrike API configuration - stored as repository secrets
+          # CrowdStrike API endpoint
           CS_BASE_API_URL: ${{ secrets.CROWDSTRIKE_API_URL }}
+          # OAuth2 client ID
           CS_CLIENT_ID: ${{ secrets.CROWDSTRIKE_CLIENT_ID }}
+          # OAuth2 client secret
           CS_CLIENT_SECRET: ${{ secrets.CROWDSTRIKE_CLIENT_SECRET }}
+          
+          # Scan behavior configuration
+          # Display detailed scan results in logs
           SHOW_FULL_RESULTS: true
+          # Don't fail the workflow on security findings
           EXIT_WITH_FCS_CODE: false
         run: |
+          # Make the scan script executable and run it
           chmod +x fcs_cli_iac_scan.sh
           ./fcs_cli_iac_scan.sh
         
+      # Step 4: Upload security findings to GitHub Security tab
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
+        # Only run if SARIF file was generated (scan completed successfully)
         if: always() && hashFiles('fcs-scan-results.sarif') != ''
         with:
+          # SARIF format for GitHub Security integration
           sarif_file: fcs-scan-results.sarif
+        # Don't fail workflow if SARIF upload fails
         continue-on-error: true
           
+      # Step 5: Archive scan results as workflow artifacts
+      # Always upload artifacts, even if previous steps failed
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-scan-results
           path: |
+            # Detailed JSON results
             fcs-scan-results.json
+            # SARIF format for security tools
             fcs-scan-results.sarif
+            # Human-readable summary
             fcs-scan-summary.txt
